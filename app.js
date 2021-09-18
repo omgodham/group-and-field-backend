@@ -5,7 +5,8 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 const authRoutes = require('./routes/auth')
-
+const userRoutes = require('./routes/user')  
+const classRoutes = require('./routes/class')  
 //database connection
 mongoose.connect(process.env.MONGODB_CONNECT,{
   useNewUrlParser:true,
@@ -24,6 +25,8 @@ app.use(cors());
 
 //routes
 app.use('/api/auth', authRoutes)
+app.use('/api/user', userRoutes)
+app.use('/api/class', classRoutes)
 
 let port = process.env.PORT || 3004;
   app.listen(port, err => {

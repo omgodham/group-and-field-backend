@@ -6,7 +6,7 @@ const verifyToken = (req, res) => {
   const authHeader = req.get("Authorization");
   if (!authHeader) {
     return res.status(401).json({
-      error: "Not authenticated",
+      error: "Authorization token not found",
     });
   }
   const token = authHeader.split(" ")[1];
@@ -15,7 +15,7 @@ const verifyToken = (req, res) => {
     decodedToken = jwt.verify(token, process.env.SECRET);
   } catch (error) {
     return res.status(401).json({
-      error: "Not authenticated",
+      error: error.message,
     });
   }
   if (!decodedToken) {
@@ -25,6 +25,48 @@ const verifyToken = (req, res) => {
   }
   return decodedToken.userId;
 };
+
+exports.isSignedIn = (req, res, next) => {
+  const authHeader = req.get("Authorization");
+  if (!authHeader) {
+    return res.status(401).json({
+      error: "Authorization token not found",
+    });
+  }
+  const token = authHeader.split(" ")[1];
+  let decodedToken;
+  try {
+    decodedToken = jwt.verify(token, process.env.SECRET);
+    next();
+  } catch (error) {
+    return res.status(401).json({
+      error: error.message,
+    });
+  }
+  if (!decodedToken) {
+    return res.status(401).json({
+      error: "Not authenticated",
+    });
+  }
+};
+
+exports.getLoggedInUser = (req,res) => {
+  const userId = verifyToken(req, res);
+  User.findById(userId)
+    .then((user) => {
+      if (!user) {
+        return res.status(400).json({
+          error: "User not found",
+        });
+      }
+      return res.status(200).json(user);
+    })
+      .catch(error =>{ 
+        return res.status(400).json({
+        error: error.message,
+      });
+    })
+}
 
 exports.verifyAdmin = (req, res, next) => {
   const userId = verifyToken(req, res);
@@ -101,12 +143,38 @@ exports.verifyTeacher = (req, res, next) => {
     });
 };
 
+exports.verifyTeacherOrAdmin = (req, res, next) => {
+  const userId = verifyToken(req, res);
+  User.findById(userId)
+    .then((user) => {
+      if (!user) {
+        return res.status(400).json({
+          error: "User not found",
+        });
+      }
+      if (user.role !== 'ROLE_TEACHER' && user.role !== 'ROLE_ADMIN' ) {
+        return res.status(400).json({
+          error: "Not have access",
+        });
+      }
+      req.loggedInUserId = userId;
+      req.loggedInUserEmail = user.email;
+      next();
+    })
+    .catch((error) => {
+      return res.status(400).json({
+        error: error.message,
+      });
+    });
+};
+
+
 exports.signUp = (req, res) => {
   const user = new User(req.body);
   const { errors } = validationResult(req);
 
   if (!errors.length == 0) {
-    return res.json({
+    return res.status(400).json({
       error: errors[0].msg,
     });
   }
@@ -124,6 +192,7 @@ exports.signUp = (req, res) => {
     res.status(200).json(user);
   });
 };
+
 
 exports.signIn = (req, res) => {
   const { email, password } = req.body;
