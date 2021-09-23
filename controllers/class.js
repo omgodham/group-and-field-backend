@@ -15,7 +15,6 @@ exports.getClassByPublicId = (req, res, next, id) => {
 
 }
 
-
 exports.getClass = (req, res) => {
     return res.status(200).json(req.thisClass)
 }
