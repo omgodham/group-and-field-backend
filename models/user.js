@@ -34,6 +34,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    lectures: [
+      {
+         type: Object,
+         default:null
+      }
+   ],
     feeDueLectures: [
       {
         classId: {
@@ -43,12 +49,10 @@ const userSchema = new mongoose.Schema(
       },
     ],
     childs: [
-      {
-        childId: {
+       {
           type: mongoose.ObjectId,
           ref: "User",
-        },
-      },
+      }
     ],
     isRememberMe: {
       type: Boolean,
