@@ -2,6 +2,8 @@ const User = require ("../models/user");
 
 exports.getUserById = (req, res, next, id) => {
 
+
+    
     User.findById(id).then(user => {
         req.profile = user;
         next();
@@ -58,3 +60,10 @@ exports.getAllUsersWithSameStd = (req, res,) => {
     })
 
 }
+
+exports.getAllStudents = (req,res) => {
+    User.find({role:'ROLE_STUDENT'}).then(users => {
+        return res.json(users)
+    }).catch(err => res.json(err)) 
+}
+

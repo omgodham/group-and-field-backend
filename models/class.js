@@ -36,6 +36,10 @@ const classSchema = new mongoose.Schema(
     url:{
         type:String,
         default:"",
+    },
+    teacher:{
+          type: mongoose.ObjectId,
+          ref: "User",
     }
 }, { timestamps: true }
 );
