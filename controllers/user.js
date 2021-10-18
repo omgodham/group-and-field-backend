@@ -67,3 +67,10 @@ exports.getAllStudents = (req,res) => {
     }).catch(err => res.json(err)) 
 }
 
+exports.getAllTeachers = (req,res) => {
+    User.find({role:'ROLE_TEACHER'}).then(users => {
+        return res.json(users)
+    }).catch(err => res.json(err)) 
+}
+
+
