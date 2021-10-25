@@ -66,3 +66,11 @@ exports.isClassAlreadyExists = (req,res,next) => {
       });     
      
 }
+
+exports.getClasses = (req,res) => {
+    Classes.find().then(classes => {
+        return res.json(classes)
+    }).catch(err => res.json(err)) 
+}
+
+

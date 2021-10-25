@@ -67,3 +67,32 @@ exports.getAllStudents = (req,res) => {
     }).catch(err => res.json(err)) 
 }
 
+exports.getAllTeachers = (req,res) => {
+    User.find({role:'ROLE_TEACHER'}).then(users => {
+        return res.json(users)
+    }).catch(err => res.json(err)) 
+}
+
+
+exports.updateLectures = (req, res) => {
+    // console.log(req.body)
+
+    let newLectures = [];
+     req.profile.lectures.forEach(item => {
+        if(req.body.lectureIds.some(id => id == item.id))
+        newLectures.push({id:item.id,due:false})
+        else newLectures.push(item)
+    })
+    console.log(newLectures , req.profile._id);
+    User.findOneAndUpdate({_id:req.profile._id},
+        { $set: {lectures:newLectures} },
+        { new: true, useFindAndModify: false })
+        .then(user => {
+            return res.status(200).json(user);
+        }).catch(error =>{
+            return res.status(400).json({
+                error: 'User not found for updation'
+            });
+        })
+    
+}
