@@ -1,6 +1,9 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const {body,validationResult} = require('express-validator');
+const nodemailer = require("nodemailer");
+const { findOneAndUpdate } = require("../models/user");
+
 
 const verifyToken = (req, res) => {
   const authHeader = req.get("Authorization");
@@ -228,3 +231,133 @@ exports.isEmailExists = (req,res,next) => {
    next();
 }
 
+
+
+
+
+
+exports.ForgotPassword =  (req,res) => {
+
+  console.log(req.body.data)
+  const email = req.body.data;
+
+  
+
+
+
+  User.findOne({email})
+  .then((user) =>{
+
+    if(!user){
+      console.log(req.body,'user not found');
+      res.status(400).send('Please enter correct email ID.')
+    }
+    else{
+
+
+
+    let secret = process.env.SECRET + user.encryPassword;
+      let payload = {
+        id: user._id
+      }
+      let token = jwt.sign(payload, secret, {expiresIn: '10m'});
+      let id = user._id;
+      // let link = `http://localhost:3000/reset-password/${id}/${token}`
+      let link = `http://localhost:3000/reset-password/${id}/${token}`
+
+      let transporter = nodemailer.createTransport({
+          service: 'gmail',
+          // host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
+      auth: {
+        user: process.env.MAILID,
+        pass: process.env.PASS
+      }
+      });
+
+    const mailOptions = {
+      from: `NO-REPLY <groupandfield@gmail.com>`, 
+      to: email, 
+      subject: "Reset Your Password", 
+      text: "Click below button to reset your password", 
+      html: `<a href=${link}>click here to reset password</a>`, 
+    }
+    transporter.sendMail(mailOptions,function (error, info){
+      if(error){
+        res.send('mail not sent')
+        console.log(error);
+      }
+      else{
+        res.send('Please check your email!');
+        console.log(info)
+      }
+    })
+
+  }
+  })
+  
+
+}
+
+
+
+exports.resetPassword = (req, res) => {
+
+  const password = req.body.data.password;
+  const userId = req.body.data.id;
+  const token = req.body.data.token;
+
+
+  
+
+
+  // const { errors } = validationResult(req);
+
+  // if (!errors.length == 0) {
+  //   res.status(400).json({
+  //     error: errors[0].msg,
+  //   });
+  // }
+  
+  User.findById(userId,function(err,user){
+
+    if(!err){
+
+
+      let secret = process.env.SECRET + user.encryPassword;
+      let payload = {
+        id: user._id
+      }
+      let newToken = jwt.sign(payload, secret, {expiresIn: '10m'});
+
+
+      if(token === newToken){
+        
+         res.status(422).json('This link is expired!')
+        
+      }
+      else{
+
+        user.password = password;
+        user.save((error, user) => {
+          if (error) {
+             res.status(400).json("cannot save user in db");
+          }
+          else{
+            res.status(200).json('Password Updated Successfully!')
+          }
+          
+        });
+        
+      }
+
+    }
+    else{
+      
+      console.log(err)
+      res.status(200).json('Something went wrong!')
+
+    }
+  })
+};

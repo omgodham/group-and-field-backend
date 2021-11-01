@@ -96,3 +96,9 @@ exports.updateLectures = (req, res) => {
         })
     
 }
+
+
+// exports.Checkout = (req, res) => {
+//     // console.log(req.body)
+    
+// }
