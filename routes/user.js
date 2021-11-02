@@ -16,5 +16,7 @@ router.get('/teachers/all-teachers' ,getAllTeachers)
 router.put('/lectures/update-lectures/:userId',updateLectures)
 router.get('/students/teacher/:userId/:studentId',verifyTeacherOrAdmin,getAllStudentsUnderTeacher)
 router.get('/childs/available-childs',verifyTeacherOrAdmin,getAvailableChilds)
+// router.post('/payment',Checkout)
+
 
 module.exports = router;
