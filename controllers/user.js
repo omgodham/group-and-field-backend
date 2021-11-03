@@ -1,4 +1,6 @@
+const Classes = require("../models/class");
 const User = require ("../models/user");
+const _ = require("lodash")
 
 exports.getUserById = (req, res, next, id) => {
 
@@ -74,6 +76,35 @@ exports.getAllTeachers = (req,res) => {
 }
 
 
+exports.getAvailableChilds = async (req,res) => {
+    try {
+       let users = await User.find({role:'ROLE_STUDENT'});
+       let parents = await User.find({role:'ROLE_PARENT'});
+       let availableChilds = [];
+       for(const user of users){    
+           let flag = false;
+           for(const parent of parents){
+               if(!flag){
+                if(!parent.childs.find(childId => {
+                   return _.isEqual(childId, user._id)
+                })){
+                    flag = false;
+                }else{
+                    flag = true;
+                }
+               }
+           }
+           if(!flag)
+           availableChilds.push(user)
+       }
+
+       res.status(200).json(availableChilds);
+    } catch (error) {
+        res.status(400).json({error:error.message});
+    }
+}
+
+
 exports.updateLectures = (req, res) => {
     // console.log(req.body)
 
@@ -96,9 +127,16 @@ exports.updateLectures = (req, res) => {
         })
     
 }
-
-
-// exports.Checkout = (req, res) => {
-//     // console.log(req.body)
-    
-// }
+exports.getAllStudentsUnderTeacher = (req,res) => {
+    let students = [];
+    User.find({_id:req.params.studentId}).then(data => {
+        console.log(data)
+                data.lectures.forEach(lecture => {
+                    Classes.findOne({id:lecture.id,teacher:req.profile._id}).then(thisClass => {
+                        if(thisClass) return students.push(data._id)
+                    }).catch(error => res.status(400).json({error:error.message}))
+                })
+                console.log(students)
+                return res.status(200).json(students);
+    }).catch(error => res.status(400).json({error:error.message}))
+}
