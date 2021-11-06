@@ -140,3 +140,9 @@ exports.getAllStudentsUnderTeacher = (req,res) => {
                 return res.status(200).json(students);
     }).catch(error => res.status(400).json({error:error.message}))
 }
+
+
+// exports.Checkout = (req, res) => {
+//     // console.log(req.body)
+    
+// }
