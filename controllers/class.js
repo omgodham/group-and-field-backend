@@ -19,9 +19,13 @@ exports.getClass = (req, res) => {
     return res.status(200).json(req.thisClass)
 }
 
-exports.createAndAssignClass = (req,res) => {
+exports.createAndAssignClass = async (req,res) => {
     const thisClass = new Classes(req.body);
-   
+    
+    let teacher = await User.findById(req.body.teacher).exec();
+
+
+
     thisClass.save().then(currentClass =>{
         let tempClasses = req.profile.lectures;
         if(tempClasses.find(item => item.id === currentClass.id)){
@@ -32,11 +36,23 @@ exports.createAndAssignClass = (req,res) => {
             tempClasses = [...tempClasses ,{id:currentClass.id , due : true}]
         }
       
+
         User.findByIdAndUpdate(req.profile._id , 
             {$set:{lectures:tempClasses}},
             { new: true, useFindAndModify: false })
         .then(user => {
-            return res.status(200).json(user);
+            let teacherLectures = [...teacher.lectures , {id:currentClass.id , due : true}];
+            User.findByIdAndUpdate(req.body.teacher , 
+                {$set:{lectures:teacherLectures}},
+                { new: true, useFindAndModify: false })
+            .then(thisTeacher => {
+                return res.status(200).json(user);
+            })
+            .catch(error =>{
+                return res.status(400).json({
+                    error: 'User not found for updation'
+                });
+            })
         }).catch(error =>{
             return res.status(400).json({
                 error: 'User not found for updation'
