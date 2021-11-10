@@ -8,6 +8,8 @@ const authRoutes = require('./routes/auth')
 const userRoutes = require('./routes/user')  
 const classRoutes = require('./routes/class')  
 const paymentRoutes = require('./routes/payment')  
+const requestRoutes = require('./routes/request')  
+
 //database connection
 mongoose.connect(process.env.MONGODB_CONNECT,{
   useNewUrlParser:true,
@@ -29,6 +31,7 @@ app.use('/api/auth', authRoutes)
 app.use('/api/user', userRoutes)
 app.use('/api/class', classRoutes)
 app.use('/api/payment', paymentRoutes)
+app.use('/api/request', requestRoutes)
 
 let port = process.env.PORT || 3004;
   app.listen(port, err => {

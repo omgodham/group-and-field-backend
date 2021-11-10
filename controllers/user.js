@@ -114,7 +114,7 @@ exports.updateLectures = (req, res) => {
         newLectures.push({id:item.id,due:false})
         else newLectures.push(item)
     })
-    console.log(newLectures , req.profile._id);
+    // console.log(newLectures , req.profile._id);
     User.findOneAndUpdate({_id:req.profile._id},
         { $set: {lectures:newLectures} },
         { new: true, useFindAndModify: false })
