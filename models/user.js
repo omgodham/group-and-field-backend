@@ -61,6 +61,10 @@ const userSchema = new mongoose.Schema(
     learningRate:{
         type:Number,
         default:50
+    },
+    calendarId:{
+      type:'String',
+      default:''
     }
   },
   { timestamps: true }
