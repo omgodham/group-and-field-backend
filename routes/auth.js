@@ -8,6 +8,7 @@ router.post('/signup',
 check('name').isLength({min:3}).withMessage('Name should at least 3 characters'),
 check('email').isEmail().withMessage('Enter valid email'),
 check('password').isLength({min:5}).withMessage('Password should at least 5 characters'),
+check('phone').isLength({min: 13, max:13}).withMessage('enter valid phone number'),
 isEmailExists,
 signUp);
 
