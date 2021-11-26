@@ -13,6 +13,11 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    phone:{
+      type: Number,
+      required: true,
+      unique: true,
+    },
     salt: String,
     encryPassword: {
       type: String,
@@ -34,6 +39,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    lectures: [
+      {
+         type: Object,
+         default:null
+      }
+   ],
     feeDueLectures: [
       {
         classId: {
@@ -43,12 +54,10 @@ const userSchema = new mongoose.Schema(
       },
     ],
     childs: [
-      {
-        childId: {
+       {
           type: mongoose.ObjectId,
           ref: "User",
-        },
-      },
+      }
     ],
     isRememberMe: {
       type: Boolean,
@@ -57,6 +66,10 @@ const userSchema = new mongoose.Schema(
     learningRate:{
         type:Number,
         default:50
+    },
+    calendarId:{
+      type:'String',
+      default:''
     }
   },
   { timestamps: true }
